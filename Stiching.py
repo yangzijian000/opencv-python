@@ -10,8 +10,8 @@ import numpy as np
 import cv2.xfeatures2d as cv
 from matplotlib import pyplot as plt
 def main():
-    img1 = cv2.imread('test1.jpg',cv2.IMREAD_COLOR)
-    img2 = cv2.imread('test2.jpg',cv2.IMREAD_COLOR)
+    img2 = cv2.imread('test1.jpg',cv2.IMREAD_COLOR)
+    img1 = cv2.imread('test2.jpg',cv2.IMREAD_COLOR)
     rows1,cols1,channels1=img1.shape
     rows2,cols2,channels2=img2.shape
     # print gakkiimg
@@ -51,14 +51,23 @@ def main():
     M,mask = cv2.findHomography(src_pts,dst_pts,cv2.RANSAC,5.0)
     pts = np.float32([[0, 0], [0, rows1 - 1], [cols1 - 1, rows1 - 1], [cols1 - 1, 0]]).reshape(-1, 1, 2)
     dst = cv2.perspectiveTransform(pts, M)
-    img7 = cv2.polylines(img2, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
+    img8 = img2
+    # img7 = cv2.polylines(img8, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
     print(M)
     print(mask)
     img6 = cv2.warpPerspective(img1,M,(cols1+cols2,max(rows1,rows2)))
+    img6[0:rows1,0:cols1] = img2
+
     # cv2.perspectiveTransform()
     img5 = cv2.drawMatchesKnn(img1, kp1, img2, kp2, [good], None, flags=2)
+    plt.figure(1)
     plt.imshow(img6)
-    plt.imshow(img7)
+    # plt.figure(2)
+    # plt.imshow(img7)
+    plt.figure(3)
+    plt.imshow(img1)
+    plt.figure(4)
+    plt.imshow(img2)
     plt.show()
 if __name__ == '__main__':
     main()
