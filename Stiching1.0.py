@@ -70,12 +70,26 @@ def PerspectivetransFormationMatrix(srcimg,dstimg):
 def StichImg(dstimg,transformedimg):
     global src_rows, src_cols
     transformedimg[0:src_rows,0:src_cols] = dstimg
-    img = cv2.cvtColor(transformedimg,cv2.COLOR_RGB2GRAY)
-    img = cv2.threshold(img,)
+    cutedimg = clearBlankedge(transformedimg)
     plt.figure(4)
     plt.imshow(transformedimg)
-
-
+    plt.figure(6)
+    plt.imshow(cutedimg)
+def clearBlankedge(needcutimg):
+    img = needcutimg
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    ret, img1 = cv2.threshold(img, 0, 1, cv2.THRESH_BINARY)
+    img1, contours, hierarchy = cv2.findContours(img1, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cols = []
+    rows = []
+    for i in contours[0]:
+        if i[0][0] != 0:
+            cols.append(i[0][0])
+        rows.append(i[0][1])
+    col = max(i for i in cols)
+    row = max(j for j in rows)
+    cutedimg = needcutimg[0:row, 0:col]
+    return cutedimg
 #用金字塔方法进行拼接，希望能平滑拼接缝隙
 def StichImgbypyramid(dstimg,transformedimg,layer):
     gpA = Gaussian_pyramid(dstimg,layer)
@@ -112,13 +126,16 @@ def LS_add(lpA,lpB,layer):
         ls_ = cv2.pyrUp(ls_)
         h, w, c = LS[i].shape
         ls_ = cv2.add(ls_[0:h, 0:w], LS[i])
+    cutedimg = clearBlankedge(ls_)
+    plt.figure(7)
+    plt.imshow(cutedimg)
     plt.figure(5)
     plt.imshow(ls_)
 def main():
     starttime = time.time()
     global src_rows, src_cols
     global dst_rows, dst_cols
-    srcimg,dstimg = readimgs('test6.jpg','test5.jpg')
+    srcimg,dstimg = readimgs('test4.jpg','test3.jpg')
     src_rows,src_cols,c1 = srcimg.shape
     dst_rows,dst_cols,c2 = dstimg.shape
     FeaturesAndMatch(srcimg,dstimg,3000)
